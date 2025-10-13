@@ -52,8 +52,8 @@ const logoutUserController = async (req, res) => {
 };
 
 module.exports = {
-  registerUserController,
-  loginUserController,
-  refreshTokensController,
-  logoutUserController
+  register: registerUserController,
+  login: loginUserController,
+  refresh: refreshTokensController,
+  logout: logoutUserController
 };
