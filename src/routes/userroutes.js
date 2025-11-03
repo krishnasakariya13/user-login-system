@@ -8,12 +8,17 @@ const {
   getUserByIdController,
   updateUserController,
   deleteUserController,
+  getUsernamesController,
+  changePasswordController,
 } = require('../controllers/userController');
+const upload = require('../middleware/upload');
 
-router.post('/', asyncHandler(createUserController));
+router.post('/', auth, upload.single('photo'), asyncHandler(createUserController));
 router.get('/', auth, asyncHandler(getAllUsersController));
+router.get('/usernames', auth, asyncHandler(getUsernamesController));
+router.put('/change-password/:id', auth, asyncHandler(changePasswordController));
 router.get('/:id', auth, asyncHandler(getUserByIdController));
-router.put('/:id', auth, asyncHandler(updateUserController));
+router.put('/:id', auth, upload.single('photo'), asyncHandler(updateUserController));
 router.delete('/:id', auth, asyncHandler(deleteUserController));
 
 module.exports = router;
