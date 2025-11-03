@@ -1,16 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     firstname: { type: String, required: true, trim: true },
     lastname: { type: String, required: true, trim: true },
-    photo: { type: String, default: null },
-    email: { type: String, required: true, unique: true },
-    resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date },
     lastLoginAt: { type: Date, default: null },
     loginHistory: [{ type: Date }],
     refreshToken: { type: String, default: null },
@@ -18,39 +13,52 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
-
-userSchema.statics.findByEmail = function(email) {
-  return this.findOne({ email });
+userSchema.statics.findByUsername = function(username) {
+    return this.findOne({ username });
 };
 
-userSchema.statics.createResetToken = async function(user) {
-  const token = crypto.randomBytes(20).toString('hex');
-  user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-  await user.save();
-  return token;
+userSchema.statics.usernameExists = async function(username) {
+    const existing = await this.exists({ username });
+    return !!existing;
 };
 
-userSchema.statics.resetPasswordByToken = async function(token, newPassword) {
-  const user = await this.findOne({
-    resetPasswordToken: token,
-    resetPasswordExpires: { $gt: Date.now() },
-  });
-
-  if (!user) return null;
-
-  user.password = newPassword;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  await user.save();
-
-  return user;
+userSchema.statics.createWithHashedPassword = async function(data) {
+    const { username, password, firstname, lastname } = data;
+    const hashed = await bcrypt.hash(password, 10);
+    const user = await this.create({ username, password: hashed, firstname, lastname });
+    return user;
 };
+
+userSchema.statics.updateByIdWithOptionalHash = async function(id, updates) {
+    const next = { ...updates };
+    if (next.password) {
+        const salt = await bcrypt.genSalt(10);
+        next.password = await bcrypt.hash(next.password, salt);
+    }
+    const user = await this.findByIdAndUpdate(id, next, {
+        new: true,
+        runValidators: true,
+        select: '-password -refreshToken',
+    });
+    return user;
+};
+
+userSchema.statics.safeFindAll = function() {
+    return this.find().select('-password -refreshToken');
+};
+
+userSchema.statics.safeFindById = function(id) {
+    return this.findById(id).select('-password -refreshToken');
+};
+
+userSchema.statics.safeDeleteById = function(id) {
+    return this.findByIdAndDelete(id).select('-password -refreshToken');
+};
+
+
 
 const User = mongoose.model('User', userSchema);
+
 module.exports = User;
+
+

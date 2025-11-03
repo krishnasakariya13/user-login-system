@@ -1,3 +1,4 @@
+const User = require("../models/user");
 const { 
     ValidationError, 
     ConflictError,
@@ -6,24 +7,22 @@ const {
     DatabaseError
 } = require("../utils/errors");
 const ERROR_MESSAGES = require("../constants/errorMessages")
-const dbHelper = require('../helper/dbhelper');
-async function createUser(payload) {
-  const { username, password, firstname, lastname, photo, email } = payload;
-  
-  validateRequired(payload, ['username', 'password', 'firstname', 'lastname', 'photo', 'email']);
 
-  const exists = await dbHelper.usernameExists(username);
+async function createUser(payload) {
+  const { username, password, firstname, lastname } = payload;
+  
+  validateRequired(payload, ['username', 'password', 'firstname', 'lastname']);
+
+  const exists = await User.usernameExists(username);
   if (exists) {
     throw new ConflictError(ERROR_MESSAGES.USERNAME_ALREADY_EXISTS, 'username');
   }
 
-  const user = await dbHelper.createWithHashedPassword({
+  const user = await User.createWithHashedPassword({
     username,
     password,
     firstname,
     lastname,
-    photo,
-    email,
   });
 
   return {
@@ -31,26 +30,23 @@ async function createUser(payload) {
     username,
     firstname,
     lastname,
-    photo,
-    email,
     createdAt: user.createdAt,
   };
 }
-async function getAllUsers(options = {}) {
+async function getAllUsers() {
   try {
-    return await dbHelper.safeFindAll(options);
+    return await User.safeFindAll();
   } catch (error) {
     throw new DatabaseError(ERROR_MESSAGES.FAILED_TO_FETCH_USERS);
   }
 }
-
 
 async function getUserById(id) {
   if (!id) {
     throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
   }
   
-  const user = await dbHelper.safeFindById(id);
+  const user = await User.safeFindById(id);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
@@ -63,7 +59,7 @@ async function updateUser(id, updates) {
     throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
   }
   
-  const user = await dbHelper.updateByIdWithOptionalHash(id, updates);
+  const user = await User.updateByIdWithOptionalHash(id, updates);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
@@ -76,44 +72,14 @@ async function deleteUser(id) {
     throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
   }
   
-  const user = await dbHelper.safeDeleteById(id);
+  const user = await User.safeDeleteById(id);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
   
   return user;
 }
-
-async function getUsernames() {
-  try {
-    const users = await dbHelper.getAllUsernames();
-    return users.map(user => user.username).join(',');
-  } catch (error) {
-    throw new DatabaseError(ERROR_MESSAGES.FAILED_TO_FETCH_USERS);
-  }
-}
-
-async function changePassword(id, currentPassword, newPassword) {
-  if (!id) {
-    throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
-  }
-  if (!currentPassword) {
-    throw new ValidationError(ERROR_MESSAGES.CURRENT_PASSWORD_REQUIRED);
-  }
-  if (!newPassword) {
-    throw new ValidationError(ERROR_MESSAGES.NEW_PASSWORD_REQUIRED);
-  }
-  
-  const result = await dbHelper.changePassword(id, currentPassword, newPassword);
-  if (result === null) {
-    throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
-  }
-  if (result === false) {
-    throw new ValidationError(ERROR_MESSAGES.CURRENT_PASSWORD_INCORRECT);
-  }
-  
-  return { message: ERROR_MESSAGES.PASSWORD_CHANGE_SUCCESS };
-}
+// console.log('fgyjfyf');
 
 module.exports = {
   createUser,
@@ -121,8 +87,6 @@ module.exports = {
   getUserById,
   updateUser,
   deleteUser,
-  getUsernames,
-  changePassword,
 };
 
 

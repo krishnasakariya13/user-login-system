@@ -2,22 +2,15 @@ const {
   registerUser, 
   loginUser, 
   refreshTokens, 
-  logoutUser,
-  forgotPassword,
-  resetPassword
+  logoutUser 
 } = require("../services/authService");
 const { sendSuccess } = require("../helper/response");
 const HTTP_STATUS = require("../constants/statusCodes");
 const ERROR_MESSAGES = require("../constants/errorMessages");
-const { asyncHandler } = require('../utils/errors');
+
 const registerUserController = async (req, res) => {
   console.log('POST /api/auth/register called');
-  const payload = {
-      ...req.body,
-      photo: req.file ? req.file.filename : null,
-    };
-
-    const result = await registerUser(payload);
+  const result = await registerUser(req.body);
   return sendSuccess(
     res,
     ERROR_MESSAGES.REGISTRATION_SUCCESSFUL,
@@ -58,37 +51,9 @@ const logoutUserController = async (req, res) => {
   );
 };
 
-const forgotPasswordController = async (req, res) => {
-  console.log('POST /api/auth/forgot-password called');
-  const { email } = req.body;
-  const result = await forgotPassword(email);
-  return sendSuccess(
-    res,
-    result.message,
-    { resetToken: result.resetToken },
-    HTTP_STATUS.OK
-  );
-};
-
-const resetPasswordController = async (req, res) => {
-  console.log('PUT /api/auth/reset-password called');
-  const { token } = req.params;
-  const { newPassword } = req.body;
-  const result = await resetPassword(token, newPassword);
-  return sendSuccess(
-    res,
-    result.message,
-    null,
-    HTTP_STATUS.OK
-  );
-};
-
-
 module.exports = {
-  registerUserController,
-  loginUserController,
-  refreshTokensController,
-  logoutUserController,
-  forgotPasswordController,
-  resetPasswordController,
+  register: registerUserController,
+  login: loginUserController,
+  refresh: refreshTokensController,
+  logout: logoutUserController
 };

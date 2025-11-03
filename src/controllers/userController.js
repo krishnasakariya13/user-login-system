@@ -5,8 +5,6 @@ const {
   getUserById,
   updateUser,
   deleteUser,
-  getUsernames,
-  changePassword,
 } = require('../services/userService');
 
 const { sendSuccess } = require('../helper/response');
@@ -16,27 +14,14 @@ const ERROR_MESSAGES = require('../constants/errorMessages');
 // Create User
 const createUserController = async (req, res) => {
   console.log('POST /api/users called');
-  console.log('req.body:', req.body);
-console.log('req.file:', req.file);
-  const photoPath = req.file ? req.file.filename : null; 
-    const user = await createUser({
-      ...req.body,
-      photo: photoPath
-    });
+  const user = await createUser(req.body);
   return sendSuccess(res, ERROR_MESSAGES.USER_CREATED_SUCCESSFULLY, user, HTTP_STATUS.CREATED);
 };
 
 // Get All Users
 const getAllUsersController = async (req, res) => {
   console.log('GET /api/users called by userId:', req.user?.id);
-  const { page, limit, sortBy, sortOrder } = req.query;
-  const options = {
-    page: parseInt(page) || 1,
-    limit: parseInt(limit) || 10,
-    sortBy: sortBy || 'createdAt',
-    sortOrder: sortOrder || 'desc'
-  };
-  const users = await getAllUsers(options);
+  const users = await getAllUsers();
   return sendSuccess(res, ERROR_MESSAGES.USERS_FETCHED_SUCCESSFULLY, users);
 };
 
@@ -50,16 +35,8 @@ const getUserByIdController = async (req, res) => {
 // Update User
 const updateUserController = async (req, res) => {
   console.log('PUT /api/users/:id called by userId:', req.user?.id, 'for id:', req.params.id);
-  console.log('req.body:', req.body);
-    console.log('req.file:', req.file);
-
-    const updates = { ...req.body };
-
-    if (req.file) {
-      updates.photo = req.file.filename;
-    }
-
-    const user = await updateUser(req.params.id, updates);
+  const updates = { ...req.body };
+  const user = await updateUser(req.params.id, updates);
   if (!user) {
     throw new Error(ERROR_MESSAGES.USER_UPDATE_FAILED);
   }
@@ -76,27 +53,10 @@ const deleteUserController = async (req, res) => {
   return sendSuccess(res, ERROR_MESSAGES.USER_DELETED_SUCCESSFULLY, user);
 };
 
-// Get Usernames (comma-separated)
-const getUsernamesController = async (req, res) => {
-  console.log('GET /api/users/usernames called by userId:', req.user?.id);
-  const usernames = await getUsernames();
-  return sendSuccess(res, ERROR_MESSAGES.USER_NAME_FETCH_SUCCESSFULLY, { usernames });
-};
-
-// Change Password
-const changePasswordController = async (req, res) => {
-  console.log('PUT /api/users/change-password called by userId:', req.user?.id);
-  const { currentPassword, newPassword } = req.body || {};
-  const result = await changePassword(req.user.id, currentPassword, newPassword);
-  return sendSuccess(res, ERROR_MESSAGES.PASSWORD_CHANGE_SUCCESSFULLY, result);
-};
-
 module.exports = {
   createUserController,
   getAllUsersController,
   getUserByIdController,
   updateUserController,
   deleteUserController,
-  getUsernamesController,
-  changePasswordController,
 };

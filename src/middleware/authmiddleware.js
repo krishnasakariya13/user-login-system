@@ -11,7 +11,6 @@ module.exports = function auth(req, res, next) {
 
     jwt.verify(token, process.env.JWT_ACCESS_SECRET, (err, payload) => {
         if (err) {
-            console.error(" JWT Verify Error:", err.message)
             if (err.name === 'TokenExpiredError') {
                 return next(new AuthenticationError(ERROR_MESSAGES.ACCESS_TOKEN_EXPIRED));
             } else {

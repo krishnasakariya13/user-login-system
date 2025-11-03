@@ -40,23 +40,6 @@ const ERROR_MESSAGES = {
       // User Errors
     USER_UPDATE_FAILED: 'Failed to update user',
     USER_DELETE_FAILED: 'Failed to delete user',
-    USER_NOT_FOUND: 'User not found with this email',
-    RESET_LINK_SENT: 'Password reset link sent successfully',
-    PASSWORD_RESET_SUCCESS: 'Password reset successfully',
-    SERVER_ERROR: 'Internal server error',
-    EMAIL_REQUIRED: 'Email is required',
-    TOKEN_REQUIRED: 'Reset token is required',
-    NEW_PASSWORD_REQUIRED: 'New password is required',
-    TOKEN_INVALID: 'Reset token is invalid or expired',
-    PASSWORD_TOO_SHORT: 'Password must be at least 6 characters long',
-    USER_ID_REQUIRED: 'User ID is required',
-    CURRENT_PASSWORD_REQUIRED: 'Current password is required',
-    NEW_PASSWORD_REQUIRED: 'New password is required',
-    CURRENT_PASSWORD_INCORRECT: 'Current password is incorrect',
-    PASSWORD_CHANGE_SUCCESS: 'Password changed successfully',
-    USER_NOT_FOUND: 'User not found',
-    PASSWORD_TOO_SHORT: 'Password must be at least 6 characters long',
-    INTERNAL_SERVER_ERROR: 'Something went wrong. Please try again later.',
 
     
     // Success Messages
@@ -65,8 +48,6 @@ const ERROR_MESSAGES = {
     LOGOUT_SUCCESSFUL: 'Logout successful',
     TOKEN_REFRESHED_SUCCESSFULLY: 'Token refreshed successfully',
     USER_CREATED_SUCCESSFULLY: 'User created successfully',
-    USER_NAME_FETCH_SUCCESSFULLY: 'username fetch successfully',
-    PASSWORD_CHANGE_SUCCESSFULLY: 'password change succesfully',
     USERS_FETCHED_SUCCESSFULLY: 'Users fetched successfully',
     USER_FETCHED_SUCCESSFULLY: 'User fetched successfully',
     USER_UPDATED_SUCCESSFULLY: 'User updated successfully',

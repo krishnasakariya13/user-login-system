@@ -17,9 +17,7 @@ const sendResponse = (res, statusCode, message, data = null, success = null) => 
 };
 
 
-const 
-
-sendSuccess = (res, message, data = null, statusCode = HTTP_STATUS.OK) => {
+const sendSuccess = (res, message, data = null, statusCode = HTTP_STATUS.OK) => {
     return sendResponse(res, statusCode, message, data, true);
 };
 

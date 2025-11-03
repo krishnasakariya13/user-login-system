@@ -7,55 +7,34 @@ const {
     ValidationError, 
     AuthenticationError, 
     ConflictError,
-    NotFoundError,
-    DatabaseError,
     validateRequired 
 } = require("../utils/errors");
-const sendEmail = require('../utils/sendEmail');
-const dbHelper = require('../helper/dbhelper');
 
-async function registerUser(payload = {}) {
-  if (!payload || Object.keys(payload).length === 0) {
-    throw new ValidationError('Request body is empty');
-  }
-  const { username, password, firstname, lastname, photo, email } = payload;
-  console.log("email:", email)
-  validateRequired(payload, ['username', 'password', 'firstname', 'lastname', 'photo', 'email']);
-  console.log("validation:", (payload, ['username', 'password', 'firstname', 'lastname', 'photo', 'email']))
-  console.log("line 26")
+async function registerUser(payload) {
+  const { username, password, firstname, lastname } = payload;
 
-  const exists = await dbHelper.usernameExists(username);
+  validateRequired(payload, ['username', 'password', 'firstname', 'lastname']);
+
+  const exists = await User.usernameExists(username);
   if (exists) {
     throw new ConflictError(ERROR_MESSAGES.USERNAME_ALREADY_EXISTS);
   }
 
-  console.log("linw 33")
-  const user = await dbHelper.createWithHashedPassword({
+  const user = await User.createWithHashedPassword({
     username,
     password,
     firstname,
     lastname,
-    photo,
-    email,
   });
-
-console.log("line 43")
-  console.log('user', user);
 
   const accessToken = signAccess(user);
   const refreshToken = signRefresh(user);
-
-  console.log('accessToken', accessToken
-    
-  );
 
   return {
     id: user._id,
     username: user.username,
     firstname: user.firstname,
     lastname: user.lastname,
-    photo: user.photo,
-    email: user.email,
     createdAt: user.createdAt,
     accessToken,
     refreshToken,
@@ -69,7 +48,7 @@ async function loginUser(payload) {
 
   validateRequired(safePayload, ['username', 'password']);
 
-  const user = await dbHelper.findByUsername(username);
+  const user = await User.findByUsername(username);
   if (!user) {
     throw new AuthenticationError(ERROR_MESSAGES.INVALID_USERNAME);
   }
@@ -112,7 +91,7 @@ async function refreshTokens(refreshToken) {
     );
   });
 
-  const user = await dbHelper.safeFindById(payload.id);
+  const user = await User.findById(payload.id);
   if (!user) {
     throw new AuthenticationError(ERROR_MESSAGES.REFRESH_TOKEN_NOT_RECOGNIZED);
   }
@@ -137,48 +116,11 @@ async function logoutUser(refreshToken) {
     return { success: true, message: ERROR_MESSAGES.ALREADY_LOGGED_OUT };
   }
   
+  const user = await User.findById(payload.id);
+  if (user && user.refreshToken === refreshToken) {
+   
+  }
   return { success: true, message: ERROR_MESSAGES.LOGOUT_SUCCESSFUL };
-}
-
-
-async function forgotPassword(email) {
-  if (!email) {
-    throw new ValidationError(ERROR_MESSAGES.EMAIL_REQUIRED);
-  }
-
-  const user = await dbHelper.findUserByEmail(email);
-  if (!user) {
-    throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND);
-  }
-
-  const token = await dbHelper.createResetToken(user);
-  const resetLink = `http://localhost:3001/api/auth/reset-password/${token}`;
-  
-  try {
-    await sendEmail(user.email, 'Password Reset', `Click here to reset password: ${resetLink}`);
-  } catch (error) {
-    console.log('Email sending failed:', error.message);
-  }
-
-  return { message: ERROR_MESSAGES.RESET_LINK_SENT, resetToken: token };
-}
-
-async function resetPassword(token, newPassword) {
-  if (!token) {
-    throw new ValidationError(ERROR_MESSAGES.TOKEN_REQUIRED);
-  }
-  if (!newPassword) {
-    throw new ValidationError(ERROR_MESSAGES.NEW_PASSWORD_REQUIRED);
-  }
-
-  const user = await dbHelper.resetPassword(token, newPassword);
-  if (!user) {
-    throw new ValidationError(ERROR_MESSAGES.TOKEN_INVALID);
-  }
-
-  return {
-    message: ERROR_MESSAGES.PASSWORD_RESET_SUCCESS
-  };
 }
 
 module.exports = {
@@ -186,6 +128,8 @@ module.exports = {
   loginUser,
   refreshTokens,
   logoutUser,
-  forgotPassword,
-  resetPassword,
 };
+
+
+
+//refreshtoken, destructuring , and adding extra is remove then error only in constant

@@ -4,7 +4,7 @@ const ERROR_MESSAGES = require('../constants/errorMessages');
 
 const connectDB = async () => {
     try {
-        const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/auth';
+        const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/authdbfo';
         
         console.log('Attempting to connect to MongoDB...');
         console.log('URI:', mongoURI);
