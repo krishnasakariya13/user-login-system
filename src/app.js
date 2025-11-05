@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const path = require('path');
 const authRoutes = require('./routes/authroutes');
 const userRoutes = require('./routes/userroutes');
+const { swaggerUi, specs } = require('./config/swagger');
 
 const { errorHandler } = require('./utils/errors');
 
@@ -23,6 +24,12 @@ app.use((req, res, next) => {
 connectDB();
 
 app.get('/', (req, res) => res.send('API is running'));
+
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }'
+}));
 
 const Router = express.Router();
 Router.use('/auth', authRoutes);
