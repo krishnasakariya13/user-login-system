@@ -1,11 +1,11 @@
 const router = require('express').Router();
 const {
-    registerUserController,
-    loginUserController,
-    refreshTokensController,
-    logoutUserController,
-    forgotPasswordController,
-    resetPasswordController
+  registerUserController,
+  loginUserController,
+  refreshTokensController,
+  logoutUserController,
+  forgotPasswordController,
+  resetPasswordController,
 } = require('../controllers/authController');
 const { asyncHandler } = require('../utils/errors');
 const upload = require('../middleware/upload');
@@ -70,7 +70,11 @@ const upload = require('../middleware/upload');
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/register', upload.single('photo'), asyncHandler(registerUserController));
+router.post(
+  '/register',
+  upload.single('photo'),
+  asyncHandler(registerUserController)
+);
 
 /**
  * @swagger

@@ -7,25 +7,26 @@ const options = {
     info: {
       title: 'User Login System API',
       version: '1.0.0',
-      description: 'A complete Node.js + Express backend with JWT authentication',
+      description:
+        'A complete Node.js + Express backend with JWT authentication',
       contact: {
         name: 'API Support',
-        email: 'support@example.com'
-      }
+        email: 'support@example.com',
+      },
     },
     servers: [
       {
         url: 'http://localhost:3001',
-        description: 'Development server'
-      }
+        description: 'Development server',
+      },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT'
-        }
+          bearerFormat: 'JWT',
+        },
       },
       schemas: {
         User: {
@@ -33,100 +34,100 @@ const options = {
           properties: {
             id: {
               type: 'string',
-              description: 'User ID'
+              description: 'User ID',
             },
             username: {
               type: 'string',
-              description: 'Username'
+              description: 'Username',
             },
             firstname: {
               type: 'string',
-              description: 'First name'
+              description: 'First name',
             },
             lastname: {
               type: 'string',
-              description: 'Last name'
+              description: 'Last name',
             },
             email: {
               type: 'string',
               format: 'email',
-              description: 'Email address'
+              description: 'Email address',
             },
             photo: {
               type: 'string',
-              description: 'Photo filename'
+              description: 'Photo filename',
             },
             createdAt: {
               type: 'string',
               format: 'date-time',
-              description: 'Creation timestamp'
-            }
-          }
+              description: 'Creation timestamp',
+            },
+          },
         },
         AuthResponse: {
           type: 'object',
           properties: {
             success: {
-              type: 'boolean'
+              type: 'boolean',
             },
             message: {
-              type: 'string'
+              type: 'string',
             },
             data: {
               type: 'object',
               properties: {
                 id: {
-                  type: 'string'
+                  type: 'string',
                 },
                 username: {
-                  type: 'string'
+                  type: 'string',
                 },
                 firstname: {
-                  type: 'string'
+                  type: 'string',
                 },
                 lastname: {
-                  type: 'string'
+                  type: 'string',
                 },
                 email: {
-                  type: 'string'
+                  type: 'string',
                 },
                 photo: {
-                  type: 'string'
+                  type: 'string',
                 },
                 accessToken: {
-                  type: 'string'
+                  type: 'string',
                 },
                 refreshToken: {
-                  type: 'string'
-                }
-              }
-            }
-          }
+                  type: 'string',
+                },
+              },
+            },
+          },
         },
         Error: {
           type: 'object',
           properties: {
             success: {
               type: 'boolean',
-              example: false
+              example: false,
             },
             message: {
-              type: 'string'
+              type: 'string',
             },
             statusCode: {
-              type: 'integer'
-            }
-          }
-        }
-      }
-    }
+              type: 'integer',
+            },
+          },
+        },
+      },
+    },
   },
-  apis: ['./src/routes/*.js', './src/controllers/*.js']
+  apis: ['./src/routes/*.js', './src/controllers/*.js'],
 };
 
 const specs = swaggerJsdoc(options);
 
 module.exports = {
   swaggerUi,
-  specs
+  specs,
 };

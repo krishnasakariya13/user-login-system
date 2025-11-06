@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const userSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema(
+  {
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     firstname: { type: String, required: true, trim: true },
@@ -14,21 +15,23 @@ const userSchema = new mongoose.Schema({
     lastLoginAt: { type: Date, default: null },
     loginHistory: [{ type: Date }],
     refreshToken: { type: String, default: null },
-}, {
-    timestamps: true
-});
+  },
+  {
+    timestamps: true,
+  }
+);
 
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-userSchema.statics.findByEmail = function(email) {
+userSchema.statics.findByEmail = function (email) {
   return this.findOne({ email });
 };
 
-userSchema.statics.createResetToken = async function(user) {
+userSchema.statics.createResetToken = async function (user) {
   const token = crypto.randomBytes(20).toString('hex');
   user.resetPasswordToken = token;
   user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
@@ -36,7 +39,7 @@ userSchema.statics.createResetToken = async function(user) {
   return token;
 };
 
-userSchema.statics.resetPasswordByToken = async function(token, newPassword) {
+userSchema.statics.resetPasswordByToken = async function (token, newPassword) {
   const user = await this.findOne({
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: Date.now() },

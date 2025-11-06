@@ -12,19 +12,6 @@ yarn.lock
 .env.test.local
 .env.production.local
 
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
 
 # Build outputs
 dist/
@@ -48,8 +35,3 @@ Thumbs.db
 # Uploads
 uploads/
 public/uploads/
-
-# Database
-*.db
-*.sqlite
-*.sqlite3

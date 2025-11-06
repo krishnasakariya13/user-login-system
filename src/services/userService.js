@@ -1,16 +1,23 @@
-const { 
-    ValidationError, 
-    ConflictError,
-    NotFoundError,
-    validateRequired, 
-    DatabaseError
-} = require("../utils/errors");
-const ERROR_MESSAGES = require("../constants/errorMessages")
+const {
+  ValidationError,
+  ConflictError,
+  NotFoundError,
+  validateRequired,
+  DatabaseError,
+} = require('../utils/errors');
+const ERROR_MESSAGES = require('../constants/errorMessages');
 const dbHelper = require('../helper/dbhelper');
 async function createUser(payload) {
   const { username, password, firstname, lastname, photo, email } = payload;
-  
-  validateRequired(payload, ['username', 'password', 'firstname', 'lastname', 'photo', 'email']);
+
+  validateRequired(payload, [
+    'username',
+    'password',
+    'firstname',
+    'lastname',
+    'photo',
+    'email',
+  ]);
 
   const exists = await dbHelper.usernameExists(username);
   if (exists) {
@@ -39,22 +46,21 @@ async function createUser(payload) {
 async function getAllUsers(options = {}) {
   try {
     return await dbHelper.safeFindAll(options);
-  } catch (error) {
+  } catch {
     throw new DatabaseError(ERROR_MESSAGES.FAILED_TO_FETCH_USERS);
   }
 }
-
 
 async function getUserById(id) {
   if (!id) {
     throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
   }
-  
+
   const user = await dbHelper.safeFindById(id);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
-  
+
   return user;
 }
 
@@ -62,12 +68,12 @@ async function updateUser(id, updates) {
   if (!id) {
     throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
   }
-  
+
   const user = await dbHelper.updateByIdWithOptionalHash(id, updates);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
-  
+
   return user;
 }
 
@@ -75,20 +81,20 @@ async function deleteUser(id) {
   if (!id) {
     throw new ValidationError(ERROR_MESSAGES.USER_ID_REQUIRED);
   }
-  
+
   const user = await dbHelper.safeDeleteById(id);
   if (!user) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
-  
+
   return user;
 }
 
 async function getUsernames() {
   try {
     const users = await dbHelper.getAllUsernames();
-    return users.map(user => user.username).join(',');
-  } catch (error) {
+    return users.map((user) => user.username).join(',');
+  } catch {
     throw new DatabaseError(ERROR_MESSAGES.FAILED_TO_FETCH_USERS);
   }
 }
@@ -103,15 +109,19 @@ async function changePassword(id, currentPassword, newPassword) {
   if (!newPassword) {
     throw new ValidationError(ERROR_MESSAGES.NEW_PASSWORD_REQUIRED);
   }
-  
-  const result = await dbHelper.changePassword(id, currentPassword, newPassword);
+
+  const result = await dbHelper.changePassword(
+    id,
+    currentPassword,
+    newPassword
+  );
   if (result === null) {
     throw new NotFoundError(ERROR_MESSAGES.USER_NOT_FOUND, 'user');
   }
   if (result === false) {
     throw new ValidationError(ERROR_MESSAGES.CURRENT_PASSWORD_INCORRECT);
   }
-  
+
   return { message: ERROR_MESSAGES.PASSWORD_CHANGE_SUCCESS };
 }
 
@@ -124,8 +134,3 @@ module.exports = {
   getUsernames,
   changePassword,
 };
-
-
-
-
-

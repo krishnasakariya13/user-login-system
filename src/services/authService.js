@@ -1,35 +1,45 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const { signAccess, signRefresh } = require("../middleware/token");
-const ERROR_MESSAGES = require("../constants/errorMessages");
-const { 
-    ValidationError, 
-    AuthenticationError, 
-    ConflictError,
-    NotFoundError,
-    DatabaseError,
-    validateRequired 
-} = require("../utils/errors");
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+// const User = require("../models/user"); // Using dbHelper instead
+const { signAccess, signRefresh } = require('../middleware/token');
+const ERROR_MESSAGES = require('../constants/errorMessages');
+const {
+  ValidationError,
+  AuthenticationError,
+  ConflictError,
+  NotFoundError,
+  // DatabaseError, // Unused import
+  validateRequired,
+} = require('../utils/errors');
 const sendEmail = require('../utils/sendEmail');
 const dbHelper = require('../helper/dbhelper');
-
 async function registerUser(payload = {}) {
   if (!payload || Object.keys(payload).length === 0) {
     throw new ValidationError('Request body is empty');
   }
   const { username, password, firstname, lastname, photo, email } = payload;
-  console.log("email:", email)
-  validateRequired(payload, ['username', 'password', 'firstname', 'lastname', 'photo', 'email']);
-  console.log("validation:", (payload, ['username', 'password', 'firstname', 'lastname', 'photo', 'email']))
-  console.log("line 26")
+  console.log('email:', email);
+  validateRequired(payload, [
+    'username',
+    'password',
+    'firstname',
+    'lastname',
+    'photo',
+    'email',
+  ]);
+  console.log(
+    'validation:',
+    (payload,
+    ['username', 'password', 'firstname', 'lastname', 'photo', 'email'])
+  );
+  console.log('line 26');
 
   const exists = await dbHelper.usernameExists(username);
   if (exists) {
     throw new ConflictError(ERROR_MESSAGES.USERNAME_ALREADY_EXISTS);
   }
 
-  console.log("linw 33")
+  console.log('linw 33');
   const user = await dbHelper.createWithHashedPassword({
     username,
     password,
@@ -39,15 +49,13 @@ async function registerUser(payload = {}) {
     email,
   });
 
-console.log("line 43")
+  console.log('line 43');
   console.log('user', user);
 
   const accessToken = signAccess(user);
   const refreshToken = signRefresh(user);
 
-  console.log('accessToken', accessToken
-    
-  );
+  console.log('accessToken', accessToken);
 
   return {
     id: user._id,
@@ -61,7 +69,6 @@ console.log("line 43")
     refreshToken,
   };
 }
-
 
 async function loginUser(payload) {
   const safePayload = payload || {};
@@ -82,7 +89,7 @@ async function loginUser(payload) {
   const accessToken = signAccess(user);
   const refreshToken = signRefresh(user);
 
-  const now = new Date();
+  // const now = new Date(); // Unused variable
 
   return {
     accessToken,
@@ -97,19 +104,19 @@ async function refreshTokens(refreshToken) {
   }
 
   const payload = await new Promise((resolve, reject) => {
-    jwt.verify(
-      refreshToken,
-      process.env.JWT_REFRESH_SECRET,
-      (err, decoded) => {
-        if (err) {
-          if (err.name === 'TokenExpiredError') {
-            return reject(new AuthenticationError(ERROR_MESSAGES.REFRESH_TOKEN_EXPIRED));
-          }
-          return reject(new AuthenticationError(ERROR_MESSAGES.INVALID_REFRESH_TOKEN));
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
+      if (err) {
+        if (err.name === 'TokenExpiredError') {
+          return reject(
+            new AuthenticationError(ERROR_MESSAGES.REFRESH_TOKEN_EXPIRED)
+          );
         }
-        return resolve(decoded);
+        return reject(
+          new AuthenticationError(ERROR_MESSAGES.INVALID_REFRESH_TOKEN)
+        );
       }
-    );
+      return resolve(decoded);
+    });
   });
 
   const user = await dbHelper.safeFindById(payload.id);
@@ -119,7 +126,6 @@ async function refreshTokens(refreshToken) {
 
   const newAccessToken = signAccess(user);
   const newRefreshToken = signRefresh(user);
-
 
   return {
     accessToken: newAccessToken,
@@ -136,10 +142,9 @@ async function logoutUser(refreshToken) {
   if (!payload?.id) {
     return { success: true, message: ERROR_MESSAGES.ALREADY_LOGGED_OUT };
   }
-  
+
   return { success: true, message: ERROR_MESSAGES.LOGOUT_SUCCESSFUL };
 }
-
 
 async function forgotPassword(email) {
   if (!email) {
@@ -153,9 +158,13 @@ async function forgotPassword(email) {
 
   const token = await dbHelper.createResetToken(user);
   const resetLink = `http://localhost:3001/api/auth/reset-password/${token}`;
-  
+
   try {
-    await sendEmail(user.email, 'Password Reset', `Click here to reset password: ${resetLink}`);
+    await sendEmail(
+      user.email,
+      'Password Reset',
+      `Click here to reset password: ${resetLink}`
+    );
   } catch (error) {
     console.log('Email sending failed:', error.message);
   }
@@ -177,7 +186,7 @@ async function resetPassword(token, newPassword) {
   }
 
   return {
-    message: ERROR_MESSAGES.PASSWORD_RESET_SUCCESS
+    message: ERROR_MESSAGES.PASSWORD_RESET_SUCCESS,
   };
 }
 

@@ -1,4 +1,3 @@
-
 const router = require('express').Router();
 const auth = require('../middleware/authmiddleware');
 const { asyncHandler } = require('../utils/errors');
@@ -70,7 +69,12 @@ const upload = require('../middleware/upload');
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', auth, upload.single('photo'), asyncHandler(createUserController));
+router.post(
+  '/',
+  auth,
+  upload.single('photo'),
+  asyncHandler(createUserController)
+);
 
 /**
  * @swagger
@@ -224,7 +228,11 @@ router.get('/usernames', auth, asyncHandler(getUsernamesController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/change-password/:id', auth, asyncHandler(changePasswordController));
+router.put(
+  '/change-password/:id',
+  auth,
+  asyncHandler(changePasswordController)
+);
 
 /**
  * @swagger
@@ -331,7 +339,12 @@ router.get('/:id', auth, asyncHandler(getUserByIdController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put('/:id', auth, upload.single('photo'), asyncHandler(updateUserController));
+router.put(
+  '/:id',
+  auth,
+  upload.single('photo'),
+  asyncHandler(updateUserController)
+);
 
 /**
  * @swagger

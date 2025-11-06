@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 const dbHelper = {
-  
   findByUsername: (username) => User.findOne({ username }),
 
   usernameExists: async (username) => {
@@ -13,7 +12,14 @@ const dbHelper = {
   createWithHashedPassword: async (data) => {
     const { username, password, firstname, lastname, photo, email } = data;
     const hashed = await bcrypt.hash(password, 10);
-    return User.create({ username, password: hashed, firstname, lastname, photo, email });
+    return User.create({
+      username,
+      password: hashed,
+      firstname,
+      lastname,
+      photo,
+      email,
+    });
   },
 
   updateByIdWithOptionalHash: async (id, updates) => {
@@ -27,7 +33,12 @@ const dbHelper = {
   },
 
   safeFindAll: (options = {}) => {
-    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = options;
+    const {
+      page = 1,
+      limit = 10,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = options;
     const skip = (page - 1) * limit;
     const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
     return User.find()
@@ -39,7 +50,8 @@ const dbHelper = {
 
   safeFindById: (id) => User.findById(id).select('-password -refreshToken'),
 
-  safeDeleteById: (id) => User.findByIdAndDelete(id).select('-password -refreshToken'),
+  safeDeleteById: (id) =>
+    User.findByIdAndDelete(id).select('-password -refreshToken'),
 
   getAllUsernames: () => User.find().select('username -_id'),
 

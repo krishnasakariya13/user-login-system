@@ -26,10 +26,14 @@ connectDB();
 app.get('/', (req, res) => res.send('API is running'));
 
 // Swagger Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }'
-}));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+  })
+);
 
 const Router = express.Router();
 Router.use('/auth', authRoutes);
