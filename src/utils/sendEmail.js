@@ -1,14 +1,10 @@
 const nodemailer = require('nodemailer');
 
-async function sendEmail(to, subject, text) {
-  // Skip email sending if credentials not configured
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('Email sent successfully');
-    return;
-  }
-
-  const transporter = nodemailer.createTransporter({
-    service: 'gmail',
+async function sendEmail(to, subject, html) {
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -19,11 +15,17 @@ async function sendEmail(to, subject, text) {
     from: process.env.EMAIL_USER,
     to,
     subject,
-    text,
+    html,
   };
 
-  await transporter.sendMail(mailOptions);
-  console.log('Email sent successfully');
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully to:', to);
+    return info;
+  } catch (error) {
+    console.error('Email sending failed:', error.message);
+    return { error: error.message };
+  }
 }
 
 module.exports = sendEmail;
